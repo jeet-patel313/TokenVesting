@@ -8,7 +8,6 @@ contract Erc is ERC20 {
      * @title   mints ERC20 custom token with 100 million token supply
      */
     constructor() ERC20('ERCTask', 'ERT') {
-        // ownerAdd = msg.sender;
         _mint(address(this), 100000000);
     }
 }
