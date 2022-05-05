@@ -1,4 +1,5 @@
-Create a Token Vesting Smart contract with the following Role and features:
+### Create a Token Vesting Smart contract with the following Role and features:
+
 1.) Add 3 Roles (Advisor, Partnerships, Mentors)
 2.) Dynamic TGE (Token Generation Event) for every role. % of Tokens to be released right after vesting
 3.) There should be a cliff of some duration added by the admin. No releasing of tokens for a few weeks or a few months.
