@@ -1,9 +1,89 @@
-### Create a Token Vesting Smart contract with the following Role and features:
+## Token Vesting Smart Contract
 
-#### 1.) Add 3 Roles (Advisor, Partnerships, Mentors)
-#### 2.) Dynamic TGE (Token Generation Event) for every role. % of Tokens to be released right after vesting
-#### 3.) There should be a cliff of some duration added by the admin. No releasing of tokens for a few weeks or a few months.
-#### 4.) The Vesting should be a linear vesting approach which means it should release some amounts of tokens every day to be claimed by users based upon the allocations decided by the admin.
+#### Create a Token Vesting Contract with 3 roles (Advisor, Partners, Mentors) with 5% TGE for Advisors, 0 % TGE for Partners and 7% TGE for Mentors with 2 months cliff and 22 months linear vesting for all roles
 
-### Example:
-#### Create a Token Vesting Contract with 5% TGE for Advisors, 0 % TGE for Partnerships and 7% TGE for Mentors with 2 months cliff and 22 months linear vesting for all roles
+## How To Use
+
+~ Fire up your default terminal and type the following commands.
+
+```
+git clone https://github.com/jeet-patel313/TokenVesting.git
+```
+
+```
+cd TokenVesting
+```
+
+```
+npm install
+```
+
+## Crucial Step
+
+```
+create a .env in your root directory and add your ALCHEMY_API_KEY and ROPSTEN_PRIVATE_KEY
+```
+
+-Get Your API Key
+
+- [Infura](https://infura.io/)
+- [Alchemy](https://alchemy.com/?r=TM0MzU2NTQyNDg1M)
+
+## NPM Packages
+
+- [Openzeppelin](https://www.npmjs.com/package/@openzeppelin/contracts)
+- [Hardhat-Ethers](https://www.npmjs.com/package/hardhat-ethers)
+- [Chai](https://www.npmjs.com/package/chai)
+- [Ethers](https://www.npmjs.com/package/ethers)
+- [Ethereum-Waffle](https://www.npmjs.com/package/ethereum-waffle)
+- [Dotenv](https://www.npmjs.com/package/dotenv)
+- [Hardhat-Etherscan](https://www.npmjs.com/package/hardhat-etherscan)
+
+## Tech Stack
+
+- [Node](https://nodejs.org/en/)
+- [Hardhat](https://hardhat.org/)
+- [Solidity](https://docs.soliditylang.org/)
+- [Openzeppelin](https://openzeppelin.com/)
+
+## Run Locally
+
+Setting up your environment
+
+```bash
+  npm install
+```
+
+Compile TokenVesting Contract
+
+```bash
+  npx hardhat compile
+```
+
+Run Tests
+
+```bash
+  npx hardhat test
+```
+
+Deploy on Ropsten
+
+```bash
+  npx hardhat run scripts/deploy.js --network ropsten
+```
+
+Verify Contract
+
+```bash
+npx hardhat verify --network ropsten <YOUR_CONTRACT_ADDRESS>
+```
+
+Help
+
+```bash
+  npx hardhat help
+```
+
+## Check on Ropsten Explorer
+
+- [Ropsten](https://ropsten.etherscan.io/address/0x6f5ae3cb65e0941ec7a98705fa43528c5f42d160)
