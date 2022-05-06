@@ -4,21 +4,21 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract Erc is ERC20 {
-    /**
-     * @title   mints ERC20 custom token with 100 million token supply
-     */
+    // /**
+    //  * @title   mints ERC20 custom token with 100 million token supply
+    //  */
     constructor() ERC20('ERCTask', 'ERT') {
         _mint(address(this), 100000000);
     }
 }
 
-/**
- * @title   Token Vesting Smart Contract with 3 roles
- * @notice  3 roles: Advisor, Partnership, Mentor
- * @notice  Create a Token Vesting Contract with 5% TGE for Advisors, 0 % TGE for Partnerships and 7% TGE for Mentors with 2 months cliff and 22  months linear vesting for all roles
- * @author  Jeet Patel
- */
-contract LatestVesting is AccessControl, Erc {
+// /**
+//  * @title   Token Vesting Smart Contract with 3 roles
+//  * @notice  3 roles: Advisor, Partnership, Mentor
+//  * @notice  Create a Token Vesting Contract with 5% TGE for Advisors, 0 % TGE for Partnerships and 7% TGE for Mentors with 2 months cliff and 22  months linear vesting for all roles
+//  * @author  Jeet Patel
+//  */
+contract VestingContract is AccessControl, Erc {
     mapping(address => uint) private _balanceOf;
 
     mapping(address => uint) public _withdrawalMonth;
