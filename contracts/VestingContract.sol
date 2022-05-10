@@ -4,11 +4,13 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract Erc is ERC20 {
+    address public owner;
     // /**
     //  * @title   mints ERC20 custom token with 100 million token supply
     //  */
     constructor() ERC20('ERCTask', 'ERT') {
-        _mint(address(this), 100000000);
+        owner = msg.sender;
+        _mint(owner, 100000000 * 1e18);
     }
 }
 
@@ -19,7 +21,7 @@ contract Erc is ERC20 {
 //  * @author  Jeet Patel
 //  */
 contract VestingContract is AccessControl, Erc {
-    mapping(address => uint) private _balanceOf;
+    mapping(address => uint) public _balanceOf;
 
     mapping(address => uint) public _withdrawalMonth;
 
@@ -40,7 +42,7 @@ contract VestingContract is AccessControl, Erc {
     uint public _secondsDifference;
 
     /// token release per month = 4,000,000 
-    uint256 public monthlyTokenAmt = 88000000 / 22; 
+    uint256 public monthlyTokenAmt = 88000000 * 1e18 / 22; 
 
     /// calculate monthly additional tokens for each roles
     uint256 public monthlyAdvisorAmt = monthlyTokenAmt * 1 / 4; //25% of the monthly release
@@ -50,7 +52,7 @@ contract VestingContract is AccessControl, Erc {
     constructor(address advisor, address partner, address mentor) {
         /// Grant the contract deployer the default admin role: it will be able
         /// to grant and revoke any roles
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(DEFAULT_ADMIN_ROLE, owner);
 
         /// assign advisor, partner and mentor roles
         _setupRole(ADVISOR_ROLE, advisor);
@@ -63,8 +65,8 @@ contract VestingContract is AccessControl, Erc {
         cliffPeriodTermination = block.timestamp + 60 days;
 
         /// Assign initial tokens and transfer to the 3 roles
-        _transfer(address(this), advisor, 1000000 * 5);
-        _transfer(address(this), mentor, 1000000 * 7);
+        _transfer(owner, advisor, 1000000 * 5 * 1e18);
+        _transfer(owner, mentor, 1000000 * 7 * 1e18);
     }
 
 
@@ -90,46 +92,19 @@ contract VestingContract is AccessControl, Erc {
             _monthNumber = _secondsDifference / 2592000;
             if(_monthNumber <= 22) {
                 if(role == 1) {
-                    if (_monthNumber == 1) {
-                        //first transfer the balance
-                        _balanceOf[msg.sender] = _monthNumber * monthlyAdvisorAmt;
-                        _transfer(address(this), msg.sender, _balanceOf[msg.sender]);
-                    }
-                    else {
-                        //first transfer the balance
-                        _balanceOf[msg.sender] = (_monthNumber - _withdrawalMonth[msg.sender]) * monthlyAdvisorAmt;
-                        _transfer(address(this), msg.sender, _balanceOf[msg.sender]);
-                    }
-                    // update the withdrawal month
-                    _withdrawalMonth[msg.sender] = _monthNumber;
+                    transferAndSend((_monthNumber - _withdrawalMonth[msg.sender]), monthlyAdvisorAmt);
                 } else if(role == 2) {
-                    if (_monthNumber == 1) {
-                        //first transfer the balance
-                        _balanceOf[msg.sender] = _monthNumber * monthlyPartnerAmt;
-                        _transfer(address(this), msg.sender, _balanceOf[msg.sender]);
-                    }
-                    else {
-                        //first transfer the balance
-                        _balanceOf[msg.sender] = (_monthNumber - _withdrawalMonth[msg.sender]) * monthlyPartnerAmt;
-                        _transfer(address(this), msg.sender, _balanceOf[msg.sender]);
-                    }
-                    // update the withdrawal month
-                    _withdrawalMonth[msg.sender] = _monthNumber;
+                    transferAndSend((_monthNumber - _withdrawalMonth[msg.sender]), monthlyPartnerAmt);
                 } else if(role == 3) {
-                    if (_monthNumber == 1) {
-                        //first transfer the balance
-                        _balanceOf[msg.sender] = _monthNumber * monthlyMentorAmt;
-                        _transfer(address(this), msg.sender, _balanceOf[msg.sender]);
-                    }
-                    else {
-                        //first transfer the balance
-                        _balanceOf[msg.sender] = (_monthNumber - _withdrawalMonth[msg.sender]) * monthlyMentorAmt;
-                        _transfer(address(this), msg.sender, _balanceOf[msg.sender]);
-                    }
-                    // update the withdrawal month
-                    _withdrawalMonth[msg.sender] = _monthNumber;
+                    transferAndSend((_monthNumber - _withdrawalMonth[msg.sender]), monthlyMentorAmt);  
                 }
+                _withdrawalMonth[msg.sender] = _monthNumber;
             }
         }
     }       
+
+    function transferAndSend(uint256 _month, uint256 _monthlyAmt) internal {
+        _balanceOf[msg.sender] = _month * _monthlyAmt;
+        _transfer(owner, msg.sender, _balanceOf[msg.sender]);
+    }
 }
