@@ -17,7 +17,7 @@ contract Erc is ERC20 {
 // /**
 //  * @title   Token Vesting Smart Contract with 3 roles
 //  * @notice  3 roles: Advisor, Partnership, Mentor
-//  * @notice  Create a Token Vesting Contract with 5% TGE for Advisors, 0 % TGE for Partnerships and 7% TGE for Mentors with 2 months cliff and 22  months linear vesting for all roles
+//  * @notice  Create a Token Vesting Contract with 5% TGE for Advisors, 10 % TGE for Partnerships and 7% TGE for Mentors with 2 months cliff and 22  months linear vesting for all roles
 //  * @author  Jeet Patel
 //  */
 contract VestingContract is AccessControl, Erc {
@@ -41,13 +41,15 @@ contract VestingContract is AccessControl, Erc {
 
     uint public _secondsDifference;
 
-    /// token release per month = 4,000,000 
-    uint256 public monthlyTokenAmt = 88000000 * 1e18 / 22; 
+    // token amount at TGE
+    uint256 public advisorTGE = 1000000 * 5 * 1e18;
+    uint256 public partnerTGE = 1000000 * 10 * 1e18;
+    uint256 public mentorTGE = 1000000 * 7 * 1e18;
 
-    /// calculate monthly additional tokens for each roles
-    uint256 public monthlyAdvisorAmt = monthlyTokenAmt * 1 / 4; //25% of the monthly release
-    uint256 public monthlyPartnerAmt = monthlyTokenAmt * 1 / 4; //25% of the monthly release
-    uint256 public monthlyMentorAmt = monthlyTokenAmt * 2 / 4; // 50% of the monthly release
+    /// calculate monthly tokens for each roles
+    uint256 public monthlyAdvisorAmt = advisorTGE / 22;
+    uint256 public monthlyPartnerAmt = partnerTGE / 22;
+    uint256 public monthlyMentorAmt = mentorTGE / 22;
 
     constructor(address advisor, address partner, address mentor) {
         /// Grant the contract deployer the default admin role: it will be able
@@ -63,10 +65,6 @@ contract VestingContract is AccessControl, Erc {
         tokenGenerationEvent = block.timestamp;
         /// assign cliff time period
         cliffPeriodTermination = block.timestamp + 60 days;
-
-        /// Assign initial tokens and transfer to the 3 roles
-        _transfer(owner, advisor, 1000000 * 5 * 1e18);
-        _transfer(owner, mentor, 1000000 * 7 * 1e18);
     }
 
 
@@ -101,7 +99,7 @@ contract VestingContract is AccessControl, Erc {
                 _withdrawalMonth[msg.sender] = _monthNumber;
             }
         }
-    }       
+    }
 
     function transferAndSend(uint256 _month, uint256 _monthlyAmt) internal {
         _balanceOf[msg.sender] = _month * _monthlyAmt;
