@@ -1,6 +1,6 @@
 ## Token Vesting Smart Contract
 
-#### Create a Token Vesting Contract with 3 roles (Advisor, Partners, Mentors) with 5% TGE for Advisors, 0 % TGE for Partners and 7% TGE for Mentors with 2 months cliff and 22 months linear vesting for all roles
+#### Create a Token Vesting Contract with 3 roles (Advisor, Partners, Mentors) with 5% TGE for Advisors, 10 % TGE for Partners and 7% TGE for Mentors with 2 months cliff and 22 months linear vesting for all roles
 
 ## How To Use
 
@@ -86,4 +86,4 @@ Help
 
 ## Check on Ropsten Explorer
 
-- [Ropsten](https://ropsten.etherscan.io/address/0x6f5ae3cb65e0941ec7a98705fa43528c5f42d160)
+- [coming soon]
