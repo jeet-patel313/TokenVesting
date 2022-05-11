@@ -1,8 +1,11 @@
 const { expect } = require("chai");
+const { ethers } = require('hardhat');
+const { BigNumber } = require('ethers');
 
 let VestingContract;
 let hardhatToken;
 let totalBalance;
+let owner;
 let advisor;
 let partner;
 let mentor;
@@ -15,38 +18,71 @@ let mentorAccount;
 let mentorBalance;
 
 beforeEach(async function() {
-    //
-    [advisor, partner, mentor, ...addrs] = await ethers.getSigners();
+    [owner, advisor, partner, mentor, ...addrs] = await ethers.getSigners();
 
     VestingContract = await ethers.getContractFactory('VestingContract');
 
     hardhatToken = await VestingContract.deploy(advisor.address, partner.address, mentor.address);
 });
 
-describe('Token Vesting', function () {
-    it('Total supply of token on the deployed address must be 100 million', async function() {
-        expect(await hardhatToken.totalSupply()).to.equal(100000000);
+describe('Token Vesting contract deployed', function () {
+    it('total supply of token must be 100 million', async function() {
+        expect(await hardhatToken.totalSupply()).to.equal(BigNumber.from(100000000).mul(BigNumber.from(10).pow(18)));
+    });    
+});
+
+describe('Cliff not expired', function () {
+    // total tokens in the owner account is still 100 million
+    it('total tokens in the owner account is 100 million', async function() {
+        expect(await hardhatToken.totalSupply()).to.equal(BigNumber.from(100000000).mul(BigNumber.from(10).pow(18)));
     });
 
-    it('Total balance in the smart contract must be 88 million', async function () {      
-        totalBalance = await hardhatToken.balanceOf(hardhatToken.address);
+    // advisor balance = 0
+    it('advisor account has 0 tokens since cliff period has not expired', async function() {
+        await expect(hardhatToken.connect(advisor).withdrawToken()).to.be.revertedWith('Cliff not expired');
+    })
+});
 
-        advisorAccount = await hardhatToken.balanceOf(advisor.address);
-        advisorBalance = advisorAccount.toNumber();
-        partnerAccount = await hardhatToken.balanceOf(partner.address);
-        partnerBalance = partnerAccount.toNumber();
-        mentorAccount = await hardhatToken.balanceOf(mentor.address);
-        mentorBalance = mentorAccount.toNumber();
-        expect(totalBalance).to.equal(await hardhatToken.totalSupply() - (advisorBalance + partnerBalance + mentorBalance));
-    });
+describe('Cliff period terminated', function () {
 
-    it('Balance of advisor just after TGE is 5 million', async function() {
-        expect(advisorBalance).to.equal(5000000);
+    // single month
+    it('advisor balance 1 month from cliff period termination is 227,272.727 tokens', async function() {
+        const threeMonthsLater = 92 * 24 * 60 * 60;
+
+        const blockNumBefore = await ethers.provider.getBlockNumber();
+        const blockBefore = await ethers.provider.getBlock(blockNumBefore);
+        const timestampBefore = blockBefore.timestamp;
+
+        await ethers.provider.send('evm_increaseTime', [threeMonthsLater]);
+        await ethers.provider.send('evm_mine');
+
+        const blockNumAfter = await ethers.provider.getBlockNumber();
+        const blockAfter = await ethers.provider.getBlock(blockNumAfter);
+        const timestampAfter = blockAfter.timestamp;
+      
+        await hardhatToken.connect(advisor).withdrawToken();
+        let testingVar = await hardhatToken.balanceOf(advisor.address);
+        expect(testingVar.toString()).to.equal('227272727272727272727272');
     });
-    it('Balance of partner just after TGE is 0 million', async function() {
-        expect(partnerBalance).to.equal(0);
-    });
-    it('Balance of mentor just after TGE is 7 million', async function() {
-        expect(mentorBalance).to.equal(7000000);
+});
+
+describe('22 months linear vesting completed', function () {
+    it('total tokens with the advisor should be 5 million ', async function () {      
+        const vestingPeriodCompleted = 721 * 24 * 60 * 60;
+
+        const blockNumBefore = await ethers.provider.getBlockNumber();
+        const blockBefore = await ethers.provider.getBlock(blockNumBefore);
+        const timestampBefore = blockBefore.timestamp;
+
+        await ethers.provider.send('evm_increaseTime', [vestingPeriodCompleted]);
+        await ethers.provider.send('evm_mine');
+
+        const blockNumAfter = await ethers.provider.getBlockNumber();
+        const blockAfter = await ethers.provider.getBlock(blockNumAfter);
+        const timestampAfter = blockAfter.timestamp;
+      
+        await hardhatToken.connect(advisor).withdrawToken();
+        let testingVar = await hardhatToken.balanceOf(advisor.address);
+        expect(testingVar.toString()).to.equal('4999999999999999999999984');        
     });
 });
